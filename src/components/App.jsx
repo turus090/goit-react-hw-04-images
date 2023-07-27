@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ImageGallery from './imageGallery/ImageGallery';
 import Searchbar from './searchbar/Searchbar';
 import Button from './button/Button';
@@ -17,7 +17,7 @@ const App = () => {
         isLoading: false,
         showImg: false 
     })   
-    const reqImg = async () =>{
+    const reqImg = useCallback( async () =>{
         const data = await getImages(state.searchText, state.countOnPage, state.page)
         setState({
             ...state,
@@ -27,10 +27,10 @@ const App = () => {
             ],
             isLoading:false
         })
-    }
+    }, [state.showImg, state.isLoading, state.searchText, setState])
     useEffect(()=>{
         reqImg()
-    }, [state.showImg, state.isLoading, state.searchText])
+    }, [ reqImg])
 
    const updateSearch = newSearch => {
     setState({

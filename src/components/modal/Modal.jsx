@@ -1,19 +1,10 @@
-import propTypes from 'prop-types';
+
 import s from './modal.module.css';
 import { Component, createRef } from 'react';
 
-/*
-const Modal = ({imgModal, handleCloseModal}) => {
 
-  return (
-    <div onClick={handleCloseModal} className={s.modalContainer}>
-      <img className={s.modalImg} src={imgModal} alt="modal" />
-    </div>
-  );
-};
-*/
 class Modal extends Component{
-  constructor(){
+  constructor(props){
   super()
   }
   bodyModalRef = createRef()
