@@ -1,100 +1,84 @@
 import ImageGallery from './imageGallery/ImageGallery';
 import Searchbar from './searchbar/Searchbar';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import Button from './button/Button';
 import Modal from './modal/Modal';
 import Loader from './loader/Loader';
 import getImages from 'api/api';
 
-
-export class App extends Component {
-  state = {
-    images: [],
-    searchText: '',
-    page: 1,
-    countOnPage: 20,
-    modalOpen: false,
-    imgModal: null,
-    isLoading: false,
-    moreBtn: false
-  };
+const App = () => {
+  const [images, setImages] = useState([])
+  const [searchText, setSearchText] = useState('')
+  const [page, setPage] = useState(1)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [imgModal, setImgModal] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [moreBtn, setMoreBtn] = useState(false)
   
 
-  componentDidUpdate = async (prevProps,prevState) => {
-    if (prevState.searchText !== this.state.searchText || prevState.page !== this.state.page){
-      this.setState(()=>({
-        isLoading: true
-      }))
+  useEffect(() => {
+    const uploadImg = async () =>{
       try{
-          const data = await getImages(this.state.searchText,this.state.page)
-        console.log(data)
-          this.setState(prevState=>({
-            images: [
-              ...prevState.images,
-              ...data.hits
-            ],
-            moreBtn: this.state.page < Math.ceil(data.totalHits/12)
-          }))
-
+        const data = await getImages(searchText,page)
+        
+        setImages([
+          ...images,
+          ...data.hits
+        ])
+        setMoreBtn(page < Math.ceil(data.totalHits/12))
       } catch (e) {
         console.log(e)
       }
       finally{
-        this.setState(()=>({
-          isLoading:false
-        }))
+        setIsLoading(false)
       }
     }
-  }
-   submitSearch = newSearch => {
-    
-    this.setState(()=>({
-      searchText: newSearch,
-      images:  [],
-      isLoading: false
-    }))
-  }
-   handleOpenModal = img => {
-    this.setState(()=>({
-      imgModal: img,
-      modalOpen: true
-    }))
 
-  };
-   handleCloseModal = () => {
-    this.setState(()=>({
-      imgModal: null,
-      modalOpen: false
-    }))
-  };
-
-   handleLoadMore = () => {
-      this.setState(prevState=>({
-        page:prevState.page+1,
-    }))
+    if(searchText.length > 0){
+      setImages([])
+      setIsLoading(true)
+      uploadImg()
     }
-  render() {
-  
-    return (
-      <div>
-        {this.state.isLoading && <Loader/>}
-        <Searchbar submitSearch={this.submitSearch} />
-        {this.state.images.length ? (
+  }, [searchText, page])
+
+  const submitSearch = (newSearch) => {
+    setSearchText(newSearch)
+  }
+
+  const handleOpenModal = (img) =>{
+    setImgModal(img)
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setImgModal(null)
+    setModalOpen(false)
+  }
+
+  const handleLoadMore = () => {
+    setPage(page+1)
+  }
+  return (
+    <div>
+      {isLoading && <Loader/>}
+        <Searchbar submitSearch={submitSearch} />
+        {images.length ? (
           <ImageGallery
-            handleOpenModal={this.handleOpenModal}
-            imagesStore={this.state.images}
+            handleOpenModal={handleOpenModal}
+            imagesStore={images}
           />
         ) : null}
-        {this.state.moreBtn && (
-          <Button handleLoadMore={this.handleLoadMore} />
+        {moreBtn && (
+          <Button handleLoadMore={handleLoadMore} />
         ) }
-        {this.state.modalOpen && (
+        {modalOpen && (
           <Modal
-            imgModal={this.state.imgModal}
-            handleCloseModal={this.handleCloseModal}
+            imgModal= {imgModal}
+            handleCloseModal={handleCloseModal}
           />
         )}
-      </div>
-    );
-  }
+    </div>
+  )
 }
+
+export default App

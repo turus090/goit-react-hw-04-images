@@ -1,33 +1,33 @@
+import propTypes from 'prop-types'
 import s from './modal.module.css';
-import { Component, createRef } from 'react';
+import { useEffect, useRef } from 'react';
 
-class Modal extends Component{
-  modalRef = createRef()
-  handleClose = (e) =>{
+const Modal = ({imgModal, handleCloseModal}) => {
+  const handleClose = (e) => {
     if (e.code === 'Escape') {
-      this.props.handleCloseModal();
+     handleCloseModal()
     }
-  }
-  handleCloseClick = (e) =>{
+   }
+  const handleCloseClick = (e) => {
    if (e.target === e.currentTarget) {
-      this.props.handleCloseModal();
+     handleCloseModal()
    }
   }
-  componentDidMount(){
-  window.addEventListener("keydown",this.handleClose)
-  this.modalRef.current.addEventListener("click",this.handleCloseClick)
-  }
-  componentWillUnmount(){
-    window.removeEventListener("keydown", this.handleClose)
-    this.modalRef.current.removeEventListener("click", this.handleCloseClick)
-  }
-  render(){
-    return (
-      <div ref={this.modalRef} className={s.modalContainer}>
-        <img className={s.modalImg} src={this.props.imgModal} alt="modal" />
-      </div>
-    )
-  }
-}
+  const modalRef = useRef(null)
+  useEffect(()=>{
+    window.addEventListener('keydown', handleClose)
+    modalRef.current.addEventListener('click', handleCloseClick)
+  },[])
+  return (
+    <div ref={modalRef} className={s.modalContainer}>
+      <img className={s.modalImg} src={imgModal} alt="modal" />
+    </div>
+  )
 
+ }
+ Modal.propTypes = {
+  imgModal: propTypes.string,
+  handleCloseModal: propTypes.func
+ }
+ 
 export default Modal;
