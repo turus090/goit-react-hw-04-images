@@ -1,97 +1,100 @@
-import { useState, useEffect, useCallback } from "react";
 import ImageGallery from './imageGallery/ImageGallery';
 import Searchbar from './searchbar/Searchbar';
+import { Component } from 'react';
 import Button from './button/Button';
 import Modal from './modal/Modal';
 import Loader from './loader/Loader';
 import getImages from 'api/api';
 
-const App = () => {
-    const [state, setState] = useState({
-        images: [],
-        searchText: '',
-        page: 1,
-        countOnPage: 20,
-        modalOpen: false,
-        imgModal: null,
-        isLoading: false,
-        showImg: false 
-    })   
-    const reqImg = useCallback( async () =>{
-        const data = await getImages(state.searchText, state.countOnPage, state.page)
-        setState({
-            ...state,
+
+export class App extends Component {
+  state = {
+    images: [],
+    searchText: '',
+    page: 1,
+    countOnPage: 20,
+    modalOpen: false,
+    imgModal: null,
+    isLoading: false,
+    moreBtn: false
+  };
+  
+
+  componentDidUpdate = async (prevProps,prevState) => {
+    if (prevState.searchText !== this.state.searchText || prevState.page !== this.state.page){
+      this.setState(()=>({
+        isLoading: true
+      }))
+      try{
+          const data = await getImages(this.state.searchText,this.state.page)
+        console.log(data)
+          this.setState(prevState=>({
             images: [
-            ...state.images,
-            ...data.hits
+              ...prevState.images,
+              ...data.hits
             ],
-            isLoading:false
-        })
-    }, [state.showImg, state.isLoading, state.searchText, setState])
-    useEffect(()=>{
-        reqImg()
-    }, [ reqImg])
+            moreBtn: this.state.page < Math.ceil(data.totalHits/12)
+          }))
 
-   const updateSearch = newSearch => {
-    setState({
-        ...state,
-        searchText: newSearch,
-        images: newSearch.length === 0 ? [] : state.images,
-        isLoading: false,
-        showImg: false
-    })
-  };
+      } catch (e) {
+        console.log(e)
+      }
+      finally{
+        this.setState(()=>({
+          isLoading:false
+        }))
+      }
+    }
+  }
+   submitSearch = newSearch => {
+    
+    this.setState(()=>({
+      searchText: newSearch,
+      images:  [],
+      isLoading: false
+    }))
+  }
+   handleOpenModal = img => {
+    this.setState(()=>({
+      imgModal: img,
+      modalOpen: true
+    }))
 
-   const searchAPI = () => {
-    setState({
-            ...state,
-            showImg: true
-        })
   };
-
-  const handleOpenModal = img => {
-    setState({
-        ...state,
-        imgModal: img,
-        modalOpen: true
-    })
-  };
- const  handleCloseModal = () => {
-    setState({
-      ...state,  
+   handleCloseModal = () => {
+    this.setState(()=>({
       imgModal: null,
       modalOpen: false
-    })
+    }))
   };
 
-  const handleLoadMore = () => {
-        setState({
-        ...state,    
-        page:state.page+1,
-        isLoading: true
-    })
+   handleLoadMore = () => {
+      this.setState(prevState=>({
+        page:prevState.page+1,
+    }))
     }
-    return(
-        <div>
-        {state.isLoading && <Loader/>}
-        <Searchbar updateSearch={updateSearch} searchAPI={searchAPI} />
-        {state.showImg ? (
+  render() {
+  
+    return (
+      <div>
+        {this.state.isLoading && <Loader/>}
+        <Searchbar submitSearch={this.submitSearch} />
+        {this.state.images.length ? (
           <ImageGallery
-            handleOpenModal={handleOpenModal}
-            imagesStore={state.images}
+            handleOpenModal={this.handleOpenModal}
+            imagesStore={this.state.images}
           />
         ) : null}
-        {state.images.length !== 0 ? (
-          <Button handleLoadMore={handleLoadMore} />
-        ) : null}
-        {state.modalOpen && (
+        {this.state.moreBtn && (
+          <Button handleLoadMore={this.handleLoadMore} />
+        ) }
+        {this.state.modalOpen && (
           <Modal
-            imgModal={state.imgModal}
-            handleCloseModal={handleCloseModal}
+            imgModal={this.state.imgModal}
+            handleCloseModal={this.handleCloseModal}
           />
         )}
       </div>
-    )
+    );
+  }
 }
-
-export default App;

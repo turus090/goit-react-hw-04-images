@@ -1,22 +1,29 @@
-
 import s from './modal.module.css';
 import { Component, createRef } from 'react';
 
-
 class Modal extends Component{
-  constructor(props){
-  super()
+  modalRef = createRef()
+  handleClose = (e) =>{
+    if (e.code === 'Escape') {
+      this.props.handleCloseModal();
+    }
   }
-  bodyModalRef = createRef()
+  handleCloseClick = (e) =>{
+   if (e.target === e.currentTarget) {
+      this.props.handleCloseModal();
+   }
+  }
   componentDidMount(){
-  this.bodyModalRef.current.addEventListener("click", this.props.handleCloseModal)
+  window.addEventListener("keydown",this.handleClose)
+  this.modalRef.current.addEventListener("click",this.handleCloseClick)
   }
   componentWillUnmount(){
-    this.bodyModalRef.current.removeEventListener("click", this.props.handleCloseModal)
+    window.removeEventListener("keydown", this.handleClose)
+    this.modalRef.current.removeEventListener("click", this.handleCloseClick)
   }
   render(){
     return (
-      <div ref={this.bodyModalRef} className={s.modalContainer}>
+      <div ref={this.modalRef} className={s.modalContainer}>
         <img className={s.modalImg} src={this.props.imgModal} alt="modal" />
       </div>
     )
