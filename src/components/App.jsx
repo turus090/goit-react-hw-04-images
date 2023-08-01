@@ -17,14 +17,16 @@ const App = () => {
   
 
   useEffect(() => {
+   
     const uploadImg = async () =>{
+      setIsLoading(true)
       try{
         const data = await getImages(searchText,page)
         
-        setImages([
-          ...images,
+        setImages((prevState)=>([
+          ...prevState,
           ...data.hits
-        ])
+        ]))
         setMoreBtn(page < Math.ceil(data.totalHits/12))
       } catch (e) {
         console.log(e)
@@ -33,16 +35,16 @@ const App = () => {
         setIsLoading(false)
       }
     }
-
     if(searchText.length > 0){
-      setImages([])
-      setIsLoading(true)
       uploadImg()
     }
   }, [searchText, page])
 
   const submitSearch = (newSearch) => {
     setSearchText(newSearch)
+    setImages([]);
+    setPage(1)
+    
   }
 
   const handleOpenModal = (img) =>{
