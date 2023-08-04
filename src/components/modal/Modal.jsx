@@ -3,7 +3,11 @@ import s from './modal.module.css';
 import { useEffect, useRef } from 'react';
 
 const Modal = ({imgModal, handleCloseModal}) => {
- 
+   const handleCloseClick = (e) => {
+    if (e.target === e.currentTarget) {
+      handleCloseModal()
+    }
+   }
   const modalRef = useRef(null)
   useEffect(()=>{
     const handleClose = (e) => {
@@ -11,11 +15,7 @@ const Modal = ({imgModal, handleCloseModal}) => {
        handleCloseModal()
       }
      }
-    const handleCloseClick = (e) => {
-     if (e.target === e.currentTarget) {
-       handleCloseModal()
-     }
-    }
+   
     window.addEventListener('keydown', handleClose)
     modalRef.current.addEventListener('click', handleCloseClick)
     return ()=>{
