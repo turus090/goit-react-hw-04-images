@@ -3,13 +3,14 @@ import s from './modal.module.css';
 import { useEffect, useRef } from 'react';
 
 const Modal = ({imgModal, handleCloseModal}) => {
-   const handleCloseClick = (e) => {
-    if (e.target === e.currentTarget) {
-      handleCloseModal()
-    }
-   }
+
   const modalRef = useRef(null)
   useEffect(()=>{
+    const handleCloseClick = (e) => {
+      if (e.target === e.currentTarget) {
+        handleCloseModal()
+      }
+     }
     const handleClose = (e) => {
       if (e.code === 'Escape') {
        handleCloseModal()
@@ -22,7 +23,7 @@ const Modal = ({imgModal, handleCloseModal}) => {
       window.removeEventListener('keydown', handleClose)
 
     }
-  },[handleCloseModal, handleCloseClick])
+  },[handleCloseModal])
   return (
     <div ref={modalRef} className={s.modalContainer}>
       <img className={s.modalImg} src={imgModal} alt="modal" />
