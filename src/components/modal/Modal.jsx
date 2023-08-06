@@ -22,7 +22,7 @@ const Modal = ({imgModal, handleCloseModal}) => {
       window.removeEventListener('keydown', handleClose)
 
     }
-  },[handleCloseModal])
+  },[handleCloseModal, handleCloseClick])
   return (
     <div ref={modalRef} className={s.modalContainer}>
       <img className={s.modalImg} src={imgModal} alt="modal" />
